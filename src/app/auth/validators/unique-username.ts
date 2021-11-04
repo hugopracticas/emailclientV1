@@ -1,6 +1,9 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { AsyncValidator, FormControl } from "@angular/forms";
+import { map, catchError } from 'rxjs/operators';
+import { of } from "rxjs";
+import { AuthService } from "../auth.service";
 
 
 @Injectable({
@@ -8,15 +11,28 @@ import { AsyncValidator, FormControl } from "@angular/forms";
 })
 export class UniqueUsername implements AsyncValidator{
 
-    constructor(private http: HttpClient ){
+    constructor(private http: HttpClient, private authService: AuthService ){
 
     }
 
-    validate( control: FormControl ){
+    validate = ( control: FormControl ) => {
         const { value } = control;
 
-        console.log(this.http );
-
-        return null;
+        return this.authService.usernameAvailable( value )
+        .pipe(
+            map(value => {
+                if(value.available){
+                    return null;
+                }
+            }),
+            catchError( (err) => {
+              console.log(err);
+              if(err.error.username){
+                return of({ nonUniqueUsername: true })
+              }else{
+                return of({ noConnection: true })
+              }
+            })
+        );
     }
 }
