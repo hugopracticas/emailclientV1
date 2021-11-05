@@ -25,8 +25,11 @@
     {{ authForm.errors | json }}
 </form> -->
 
-<form class="ui form" [formGroup]="authForm">
-    <app-input label="Username" [control]="authForm.get('username')"></app-input>
+<form (ngSubmit)="onSubmit()" class="ui form" [formGroup]="authForm">
+    <app-input  inputType="text"
+                label="Username" 
+                [control]="authForm.get('username')">
+    </app-input>
     <!-- {{ authForm.get('username').errors | json }} -->
 
     <app-input inputType="password" 
@@ -39,9 +42,28 @@
                 [control]="authForm.get('passwordConfirmation')">
     </app-input>
 
-    <button class="ui submit button primary">
-        Submit
-    </button>
+    <div *ngIf="authForm.get('password').touched && 
+                authForm.get('passwordConfirmation') &&
+                authForm.errors" class="ui red basic label">
 
-    {{ authForm.errors | json }}
+        <p *ngIf="authForm.errors.passwordDontMatch">
+            El Password y la confirmacion de Password debebn de coincidir.
+        </p>
+
+        <p *ngIf="authForm.errors.noConnections">
+            No hay coneccion a internet, fallo el registro.
+        </p>
+
+        <p *ngIf="authForm.errors.unknownError">
+            Fallo el registro.
+        </p>
+    </div>
+
+    <div>
+        <button class="ui submit button primary">
+            Submit
+        </button>
+    </div>
+
+    <!-- {{ authForm.errors | json }} -->
 </form>
